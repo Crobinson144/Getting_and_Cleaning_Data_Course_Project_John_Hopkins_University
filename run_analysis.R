@@ -39,3 +39,27 @@ data <- cbind(subjects, y, X)
 # Keeps only the measurements related to mean and standard deviation
 mean_std_cols <- grep("mean\\(\\)|std\\(\\)", colnames(data))
 data <- data[, c(1, 2, mean_std_cols)]
+
+# Replaces activity numbers with descriptive activity names
+activity_labels$V2 <- as.character(activity_labels$V2)
+data$Activity <- activity_labels$V2[data$Activity]
+
+# Cleans up the variable names to make them more readable
+names(data) <- gsub("^t", "Time", names(data))
+names(data) <- gsub("^f", "Frequency", names(data))
+names(data) <- gsub("Acc", "Accelerometer", names(data))
+names(data) <- gsub("Gyro", "Gyroscope", names(data))
+names(data) <- gsub("Mag", "Magnitude", names(data))
+names(data) <- gsub("BodyBody", "Body", names(data))
+names(data) <- gsub("-mean\\(\\)", "Mean", names(data))
+names(data) <- gsub("-std\\(\\)", "STD", names(data))
+names(data) <- gsub("-", "", names(data))
+
+# Creates a tidy data set with the average of each variable
+# for each subject and each activity
+tidy_data <- data %>%
+  group_by(Subject, Activity) %>%
+  summarise(across(everything(), mean))
+
+# Writes the final tidy data set to a text file
+write.table(tidy_data, "tidy_data.txt", row.name = FALSE)
