@@ -9,6 +9,13 @@
 
 library(dplyr)
 
+# Downloads and unzips the dataset if it is not already in the working directory
+if (!dir.exists("UCI HAR Dataset")) {
+  zip_url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
+  download.file(zip_url, "UCI_HAR_Dataset.zip", mode = "wb")
+  unzip("UCI_HAR_Dataset.zip")
+}
+
 # Reads in the feature names and activity labels
 features <- read.table("UCI HAR Dataset/features.txt", stringsAsFactors = FALSE)
 activity_labels <- read.table("UCI HAR Dataset/activity_labels.txt", stringsAsFactors = FALSE)
@@ -59,7 +66,7 @@ names(data) <- gsub("-", "", names(data))
 # for each subject and each activity
 tidy_data <- data %>%
   group_by(Subject, Activity) %>%
-  summarise(across(everything(), mean))
+  summarise(across(everything(), mean), .groups = "drop")
 
 # Writes the final tidy data set to a text file
-write.table(tidy_data, "tidy_data.txt", row.name = FALSE)
+write.table(tidy_data, "tidy_data.txt", row.names = FALSE)
